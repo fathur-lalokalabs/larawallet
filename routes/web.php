@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CreditTransferController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,5 +21,17 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+
+    // payment routes
+    Route::get('/credit_transfers', [CreditTransferController::class, 'index'])->name('credit_transfers.index');
+    Route::get('/credit_transfers/create', [CreditTransferController::class, 'create'])->name('credit_transfers.create');
+    Route::post('/credit_transfers/store', [CreditTransferController::class, 'store'])->name('credit_transfers.store');
+    Route::get('/credit_transfers/show/{payment}', [CreditTransferController::class, 'show'])->name('credit_transfers.show');
+
+});
+
+// GETOTP callback route
 
 require __DIR__.'/auth.php';

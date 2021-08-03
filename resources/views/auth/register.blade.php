@@ -1,8 +1,8 @@
 <x-guest-layout>
     <x-auth-card>
         <x-slot name="logo">
-            <a href="/">
-                <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+            <a href="/" class="text-3xl font-bold">
+                {{ config('app.name', 'Laravel') }}
             </a>
         </x-slot>
 
@@ -24,6 +24,13 @@
                 <x-label for="email" :value="__('Email')" />
 
                 <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
+            </div>
+
+            <!-- Mobile number -->
+            <div class="mt-4">
+                <x-label for="mobile_number" :value="__('Mobile Number (with Country code)')" />
+
+                <x-input id="mobile_number" class="block mt-1 w-full" type="text" name="mobile_number" :value="old('mobile_number')" required />
             </div>
 
             <!-- Password -->
