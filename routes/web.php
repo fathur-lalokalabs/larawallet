@@ -32,6 +32,10 @@ Route::middleware('auth')->group(function () {
 
 });
 
-// GETOTP callback route
+// GETOTP redirect routes
+
+Route::get('/credit_transfers/{transfer_ref}/success', [CreditTransferController::class, 'otpSuccess'])->name('credit_transfers.success');
+Route::get('/credit_transfers/{transfer_ref}/failed', [CreditTransferController::class, 'otpFailed'])->name('credit_transfers.failed');
 
 require __DIR__.'/auth.php';
+

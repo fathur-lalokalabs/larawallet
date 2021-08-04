@@ -83,6 +83,21 @@ class CreditTransferController extends Controller
         return view('credit_transfers.show', compact('credit_transfer_request'));
     }
 
+    // callback endpoint used by GETOTP
+    public function otpCallback(Request $request) {
+        echo "callback";
+    }
+
+    // success page for GETOTP redirect  
+    public function otpSuccess(Request $request) {
+        echo "success page";
+    }
+
+    // failed page for GETOTP redirect
+    public function otpFailed(Request $request) {
+        echo "failed page";
+    }
+
     private function completeCreditTransfer($transfer_request, $from_user_id, $to_user_id, $amount) {
         
         // 1. Update credit balance for user
