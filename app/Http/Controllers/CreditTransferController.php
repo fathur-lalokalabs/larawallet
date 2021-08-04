@@ -67,7 +67,7 @@ class CreditTransferController extends Controller
 
         $this->completeCreditTransfer($transfer_request, $from_user_id, $to_user_id, $amount);
 
-        return redirect()->route('credit_transfers.index')->with('success', 'Credit successfully transferred');
+        return redirect()->route('credit_transfers.show', $transfer_request->id)->with('success', 'Credit successfully transferred');
     }
 
     /**
