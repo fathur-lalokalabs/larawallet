@@ -51,10 +51,11 @@ class CreditTransferController extends Controller
         // 1. Create transfer request
 
         $amount = $request->amount;
+        $from_user_id = auth()->id();
         $to_user_id = $request->to_user_id;
         
         $payload = [
-            'user_id' => auth()->id(),
+            'user_id' => $from_user_id,
             'to_user_id' => $to_user_id,
             'amount' => $amount,
             'status' => 'initial',
@@ -64,30 +65,52 @@ class CreditTransferController extends Controller
         
         // 2. Transfer request completed
 
-        // 2.1 Update credit balance for user
+        $this->completeCreditTransfer($transfer_request, $from_user_id, $to_user_id, $amount);
 
-        auth()->user()->wallet()->decrement('credit', $amount);
+        return redirect()->route('credit_transfers.index')->with('success', 'Credit successfully transferred');
+    }
 
-        // 2.2 update credit balance for receiver
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\CreditTransferRequest  $credit_transfer_request
+     * @return \Illuminate\Http\Response
+     */
+    public function show(CreditTransferRequest $credit_transfer_request)
+    {
+        $credit_transfer_request->load('toUser');
+
+        return view('credit_transfers.show', compact('credit_transfer_request'));
+    }
+
+    private function completeCreditTransfer($transfer_request, $from_user_id, $to_user_id, $amount) {
+        
+        // 1. Update credit balance for user
+
+        $from_user = User::find($from_user_id);
+
+        $from_user->wallet()->decrement('credit', $amount);
+
+        // 2. Update credit balance for receiver
 
         $to_user = User::find($to_user_id);
 
         $to_user->wallet()->increment('credit', $amount);
 
-        // 2.3 update transfer request status
+        // 3. update transfer request status
 
         $transfer_request->update(['status' => 'success', 'verified_at' => now()]);
 
-        // 3. Store the transfer record
+        // 4. Store the transfer record
 
         $transfer_payload = [
-            'user_id' => auth()->id(),
+            'user_id' => $from_user_id,
             'credit_transfer_request_id' => $transfer_request->id,
         ];
 
         $credit_transfer = CreditTransfer::create($transfer_payload);
 
-        return redirect()->route('credit_transfers.index')->with('success', 'Credit successfully transferred');
+        return $credit_transfer;
     }
 
     // get random user (except current user) to transfer credit. for demo only

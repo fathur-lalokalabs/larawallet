@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Make Payment') }}
+            {{ __('Credit Transfer') }}
         </h2>
     </x-slot>
 
@@ -10,11 +10,11 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
 
-                    <h1 class="text-xl font-bold">View Payment - REF # {{ $payment->id }}</h1>
+                    <h1 class="text-xl font-bold">View Credit Transfer - REF # {{ $credit_transfer_request->id }}</h1>
 
                     @include('layouts.partials.alert')
 
-                    @include('payments.partials.payment_info')
+                    @include('credit_transfers.partials.credit_transfer_info')
 
                 </div>
             </div>

@@ -28,7 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/credit_transfers', [CreditTransferController::class, 'index'])->name('credit_transfers.index');
     Route::get('/credit_transfers/create', [CreditTransferController::class, 'create'])->name('credit_transfers.create');
     Route::post('/credit_transfers/store', [CreditTransferController::class, 'store'])->name('credit_transfers.store');
-    Route::get('/credit_transfers/show/{payment}', [CreditTransferController::class, 'show'])->name('credit_transfers.show');
+    Route::get('/credit_transfers/show/{credit_transfer_request}', [CreditTransferController::class, 'show'])->name('credit_transfers.show');
 
 });
 
