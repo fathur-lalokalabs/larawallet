@@ -117,6 +117,13 @@ class CreditTransferController extends Controller
         return $credit_transfer;
     }
 
+    // handle failed Credit Transfer Request 
+    private function failedCreditTransfer($transfer_request) {
+        $transfer_request->update(['status' => 'failed', 'verified_at' => now()]);
+
+        // extra business logic
+    }
+
     // get random user (except current user) to transfer credit. for demo only
     private function getRandomReceiver() {
 
