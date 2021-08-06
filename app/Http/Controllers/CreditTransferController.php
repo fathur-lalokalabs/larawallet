@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\CreditTransfer;
 use App\Models\CreditTransferRequest;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CreditTransferController extends Controller
 {
@@ -63,11 +65,61 @@ class CreditTransferController extends Controller
 
         $transfer_request = CreditTransferRequest::create($payload);
         
-        // 2. Transfer request completed
+        // 2. Call GETOTP endpoint, if success redirect user to SMS OTP form provided by GETOTP
 
-        $this->completeCreditTransfer($transfer_request);
+        try {
 
-        return redirect()->route('credit_transfers.index')->with('success', 'Credit successfully transferred');
+            $transfer_ref = $transfer_request->id;
+
+            $otp_mobile_number = '+' . auth()->user()->mobile_number; //+60123456789
+
+            $getotp_payload = [
+                'callback_url' => route("credit_transfers.callback"),
+                'success_redirect_url' => route("credit_transfers.success", $transfer_ref),
+                'fail_redirect_url' => route("credit_transfers.failed", $transfer_ref),
+                'channel' => 'sms',
+                'phone_sms' => $otp_mobile_number,
+            ];
+
+            $api_key = config('getotp.api_key');
+            $api_token = config('getotp.api_token');
+            $api_endpoint = config('getotp.endpoint');
+
+            $response = Http::withBasicAuth($api_key, $api_token)
+                ->post($api_endpoint, $getotp_payload);
+
+            $response_json = $response->json();
+            
+            Log::info($response_json);
+
+            if ($response->successful()) {
+
+                // set the otp_id and otp_secret of the transfer request
+
+                $transfer_request_payload = [
+                    'otp_id' => $response_json['otp_id'],
+                    'otp_secret' => $response_json['otp_secret'],
+                ];
+
+                $transfer_request->update($transfer_request_payload);
+
+                // redirect to otp verification page
+
+                return redirect()->to($response_json['link']);
+            }
+            else {
+                // you can log the error here
+
+                $error_list = $response_json;
+
+                return redirect()->route('payments.show', $transfer_request->id)->with('otp_errors', $error_list);
+            }
+        } catch (\Exception $e)
+        {
+            Log::error($e->getMessage());
+            
+            return redirect()->route('credit_transfers.show', $transfer_request->id)->with('error', $e->getMessage());
+        }
     }
 
     /**
