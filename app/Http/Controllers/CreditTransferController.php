@@ -137,7 +137,24 @@ class CreditTransferController extends Controller
 
     // callback endpoint used by GETOTP
     public function otpCallback(Request $request) {
-        echo "callback";
+
+        /* 
+        callback payload example
+        {'otp_id': 'C077Khu1yH', 'auth_status': 'verified', 'phone_number': '+60123456789'}
+        {'otp_id': 'ABC77Khu1yH', 'auth_status': 'not_verified', 'phone_number': '+60123456789'}
+        */
+
+        $otp_id = $request->otp_id;
+        $otp_status = strtolower($request->auth_status);
+
+        $transfer_request = CreditTransferRequest::where('otp_id', $otp_id)->first();
+
+        if ($otp_status === 'verified') {
+            $this->completeCreditTransfer($transfer_request);
+        }
+        else {
+            $this->failedCreditTransfer($transfer_request);
+        }
     }
 
     // success page for GETOTP redirect  
