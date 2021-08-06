@@ -11,6 +11,8 @@ class CreditTransferRequest extends Model
         'to_user_id',
         'amount',
         'status',
+        'otp_id',
+        'otp_secret',
         'verified_at',
     ];
 
