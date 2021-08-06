@@ -65,7 +65,7 @@ class CreditTransferController extends Controller
         
         // 2. Transfer request completed
 
-        $this->completeCreditTransfer($transfer_request, $from_user_id, $to_user_id, $amount);
+        $this->completeCreditTransfer($transfer_request);
 
         return redirect()->route('credit_transfers.index')->with('success', 'Credit successfully transferred');
     }
@@ -83,7 +83,11 @@ class CreditTransferController extends Controller
         return view('credit_transfers.show', compact('credit_transfer_request'));
     }
 
-    private function completeCreditTransfer($transfer_request, $from_user_id, $to_user_id, $amount) {
+    private function completeCreditTransfer($transfer_request) {
+        
+        $from_user_id = $transfer_request->user_id;
+        $to_user_id = $transfer_request->to_user_id;
+        $amount = $transfer_request->amount;
         
         // 1. Update credit balance for user
 
