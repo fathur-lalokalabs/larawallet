@@ -159,12 +159,36 @@ class CreditTransferController extends Controller
 
     // success page for GETOTP redirect  
     public function otpSuccess(Request $request) {
-        echo "success page";
+        $transfer_ref = $request->transfer_ref;
+        $otp_id = $request->otp_id;
+
+        $credit_transfer_request = CreditTransferRequest::where('otp_id', $otp_id)->first();
+
+        // if Transfer Request status have not been updated yet duo to callback issue
+        if ($credit_transfer_request->status == 'initial') {
+            $this->completeCreditTransfer($credit_transfer_request);
+        }
+
+        $credit_transfer_request->load('toUser');
+
+        return view('credit_transfers.success', compact('credit_transfer_request'));
     }
 
     // failed page for GETOTP redirect
     public function otpFailed(Request $request) {
-        echo "failed page";
+        $transfer_ref = $request->transfer_ref;
+        $otp_id = $request->otp_id;
+
+        $credit_transfer_request = CreditTransferRequest::where('otp_id', $otp_id)->first();
+
+        // if Transfer Request status have not been updated yet duo to callback issue
+        if ($credit_transfer_request->status == 'initial') {
+            $this->failedCreditTransfer($credit_transfer_request);
+        }
+
+        $credit_transfer_request->load('toUser');
+
+        return view('credit_transfers.failed', compact('credit_transfer_request'));
     }
 
     private function completeCreditTransfer($transfer_request) {
